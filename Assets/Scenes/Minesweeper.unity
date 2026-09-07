@@ -563,7 +563,7 @@ GameObject:
   - component: {fileID: 1468443574}
   - component: {fileID: 1468443573}
   m_Layer: 5
-  m_Name: Button
+  m_Name: RestartButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -712,6 +712,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1525907672}
+  - component: {fileID: 1525907673}
   m_Layer: 5
   m_Name: Board
   m_TagString: Untagged
@@ -739,6 +740,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1525907673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1525907671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a1c4f0b26d84c7d9e3a5b7c1d2e4f60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cellPrefab: {fileID: 3618680242889282105, guid: 3eb896cc4c4334842af8d97df0f4548f, type: 3}
 --- !u!1 &1979982081
 GameObject:
   m_ObjectHideFlags: 0
