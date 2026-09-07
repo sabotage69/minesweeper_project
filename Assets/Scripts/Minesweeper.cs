@@ -1,10 +1,13 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
 public class Minesweeper : MonoBehaviour
 {
     public GameObject cellPrefab;
+    public TextMeshProUGUI statusText;
+    public Button restartButton;
 
     const int Size = 10;
     const int MineCount = 10;
@@ -18,6 +21,9 @@ public class Minesweeper : MonoBehaviour
 
     bool started;
     bool gameOver;
+    bool won;
+    int flagCount;
+    int revealedCount;
 
     void Start()
     {
@@ -28,7 +34,7 @@ public class Minesweeper : MonoBehaviour
                 GameObject cell = Instantiate(cellPrefab);
                 cell.transform.SetParent(transform, false);
                 RectTransform rect = cell.GetComponent<RectTransform>();
-                rect.anchoredPosition = new Vector2(-270f + Pitch * x, 270f - Pitch * y);//measured from the centre of the board, edges are at -300/+300
+                rect.anchoredPosition = new Vector2(-270f + Pitch * x, 270f - Pitch * y); //measured from the centre of the board, edges are at -300/+300
 
                 Cell click = cell.AddComponent<Cell>();
                 click.board = this;
@@ -46,24 +52,61 @@ public class Minesweeper : MonoBehaviour
                 label.text = "";
 
                 images[x, y] = cell.GetComponent<Image>();
-                mineAmountLabel[x, y] = label;
+                labels[x, y] = label;
             }
         }
+
+        restartButton.onClick.AddListener(Restart);
+        UpdateStatus();
     }
 
-    //different from original MS Minsweeper in a way that first click doesnt necessarily burst opens big area
     public void Reveal(int x, int y)
     {
-        if (gameOver || revealed[x, y] || flagged[x, y]) return;
+        Open(x, y);
+        UpdateStatus();
+    }
 
+    public void Flag(int x, int y)
+    {
+        if (gameOver) return;
+        if (revealed[x, y]) return;
+
+        flagged[x, y] = !flagged[x, y];
+
+        if (flagged[x, y])
+        {
+            flagCount++;
+            labels[x, y].text = "F";
+        }
+        else
+        {
+            flagCount--;
+            labels[x, y].text = "";
+        }
+
+        UpdateStatus();
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    void Open(int x, int y)
+    {
+        if (gameOver) return;
+        if (revealed[x, y]) return;
+        if (flagged[x, y]) return;
+
+        //first click lays mines - first click never kills
         if (!started)
         {
-            PlaceMines(x, y); //first click lays mines - first click never kills
+            PlaceMines(x, y);
             started = true;
         }
 
         revealed[x, y] = true;
-        images[x, y].color = new Color(0.7f, 0.7f, 0.7f);
+        images[x, y].color = new Color(0.7f, 0.7f, 0.7f); //different shade for opened cells
 
         if (mines[x, y])
         {
@@ -72,34 +115,40 @@ public class Minesweeper : MonoBehaviour
             return;
         }
 
+        revealedCount++;
+        if (revealedCount == Size * Size - MineCount)
+        {
+            won = true;
+            gameOver = true;
+        }
+
         int count = CountNeighbours(x, y);
         if (count > 0)
         {
-            mineAmountLabel[x, y].text = count.ToString();
+            labels[x, y].text = count.ToString();
             return;
         }
 
-        mineAmountLabel[x, y].text = " ";
-
-        //burst opens a big area
+        labels[x, y].text = " ";
         for (int dx = -1; dx <= 1; dx++)
         {
             for (int dy = -1; dy <= 1; dy++)
             {
                 int nx = x + dx;
                 int ny = y + dy;
-                if (nx >= 0 && nx < Size && ny >= 0 && ny < Size) Reveal(nx, ny);
+                if (InBounds(nx, ny)) Open(nx, ny);
             }
         }
     }
 
-    public void Flag(int x, int y)
+    void UpdateStatus()
     {
-        if (gameOver || revealed[x, y]) return;
-
-        flagged[x, y] = !flagged[x, y];
-        mineAmountLabel[x, y].text = flagged[x, y] ? "F" : "";
+        if (won) statusText.text = "you win!";
+        else if (gameOver) statusText.text = "you lose";
+        else statusText.text = (MineCount - flagCount) + " mines remaining";
     }
+
+
 
     void PlaceMines(int safeX, int safeY)
     {
@@ -108,7 +157,9 @@ public class Minesweeper : MonoBehaviour
         {
             int x = Random.Range(0, Size);
             int y = Random.Range(0, Size);
-            if (mines[x, y] || (x == safeX && y == safeY)) continue;
+
+            if (mines[x, y]) continue;
+            if (x == safeX && y == safeY) continue;
 
             mines[x, y] = true;
             placed++;
@@ -124,10 +175,21 @@ public class Minesweeper : MonoBehaviour
             {
                 int nx = x + dx;
                 int ny = y + dy;
-                if (nx >= 0 && nx < Size && ny >= 0 && ny < Size && mines[nx, ny]) count++;
+
+                if (!InBounds(nx, ny)) continue;
+                if (mines[nx, ny]) count++;
             }
         }
         return count;
+    }
+
+    bool InBounds(int x, int y)
+    {
+        if (x < 0) return false;
+        if (x >= Size) return false;
+        if (y < 0) return false;
+        if (y >= Size) return false;
+        return true;
     }
 
     void ShowAllMines()
@@ -136,7 +198,7 @@ public class Minesweeper : MonoBehaviour
         {
             for (int y = 0; y < Size; y++)
             {
-                if (mines[x, y]) mineAmountLabel[x, y].text = "X";
+                if (mines[x, y]) labels[x, y].text = "X";
             }
         }
     }
