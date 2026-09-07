@@ -52,7 +52,7 @@ public class Minesweeper : MonoBehaviour
                 label.text = "";
 
                 images[x, y] = cell.GetComponent<Image>();
-                labels[x, y] = label;
+                mineAmountLabel[x, y] = label;
             }
         }
 
@@ -76,12 +76,12 @@ public class Minesweeper : MonoBehaviour
         if (flagged[x, y])
         {
             flagCount++;
-            labels[x, y].text = "F";
+            mineAmountLabel[x, y].text = "F";
         }
         else
         {
             flagCount--;
-            labels[x, y].text = "";
+            mineAmountLabel[x, y].text = "";
         }
 
         UpdateStatus();
@@ -125,11 +125,11 @@ public class Minesweeper : MonoBehaviour
         int count = CountNeighbours(x, y);
         if (count > 0)
         {
-            labels[x, y].text = count.ToString();
+            mineAmountLabel[x, y].text = count.ToString();
             return;
         }
 
-        labels[x, y].text = " ";
+        mineAmountLabel[x, y].text = " ";
         for (int dx = -1; dx <= 1; dx++)
         {
             for (int dy = -1; dy <= 1; dy++)
@@ -198,7 +198,7 @@ public class Minesweeper : MonoBehaviour
         {
             for (int y = 0; y < Size; y++)
             {
-                if (mines[x, y]) labels[x, y].text = "X";
+                if (mines[x, y]) mineAmountLabel[x, y].text = "X";
             }
         }
     }
