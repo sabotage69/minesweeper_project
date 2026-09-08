@@ -1,7 +1,10 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+
+[assembly: InternalsVisibleTo("Tests")]
 
 public class Minesweeper : MonoBehaviour
 {
@@ -13,15 +16,15 @@ public class Minesweeper : MonoBehaviour
     const int MineCount = 10;
     const float Pitch = 60f;
 
-    bool[,] mines = new bool[Size, Size]; //mine positions written on first click, never changed
+    internal bool[,] mines = new bool[Size, Size]; //mine positions written on first click, never changed
     bool[,] revealed = new bool[Size, Size]; //has a cell been revealed
     bool[,] flagged = new bool[Size, Size]; //was a square flagged
-    Image[,] images = new Image[Size, Size];//changes cell color on reveal
-    TextMeshProUGUI[,] mineAmountLabel = new TextMeshProUGUI[Size, Size]; //text in the middle of a cell
+    internal Image[,] images = new Image[Size, Size];//changes cell color on reveal
+    internal TextMeshProUGUI[,] mineAmountLabel = new TextMeshProUGUI[Size, Size]; //text in the middle of a cell
 
-    bool started;
-    bool gameOver;
-    bool won;
+    internal bool started;
+    internal bool gameOver;
+    internal bool won;
     int flagCount;
     int revealedCount;
 
@@ -150,7 +153,7 @@ public class Minesweeper : MonoBehaviour
 
 
 
-    void PlaceMines(int safeX, int safeY)
+    internal void PlaceMines(int safeX, int safeY)
     {
         int placed = 0;
         while (placed < MineCount)
